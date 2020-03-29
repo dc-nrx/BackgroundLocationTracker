@@ -7,14 +7,23 @@
 //
 
 import UIKit
+import CoreLocation
+
+typealias JSON = [String: Any?]
 
 class ViewController: UIViewController {
 
+	@IBOutlet private var textView: UITextView!
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		// Do any additional setup after loading the view.
+			
+		onRefresh()
 	}
 
-
+	@IBAction func onRefresh(_ sender: Any? = nil) {
+		let tracker = BackgroundLocationTracker.shared
+		textView.text = "FromBG: \(tracker.launchFromBG.value as Any)\n\n savedTimeStampedLocations:\n--------------\n\(tracker.savedTimeStampedLocations.value as Any)\n\nsavedLocationCallbacks:\n--------------\n\(tracker.savedLocationCallbacks.value as Any)"
+	}
 }
 

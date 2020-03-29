@@ -15,6 +15,9 @@
 		4318D3FB242F7A1D0007AD62 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4318D3F9242F7A1D0007AD62 /* LaunchScreen.storyboard */; };
 		4318D406242F7A1D0007AD62 /* LocationTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D405242F7A1D0007AD62 /* LocationTrackerTests.swift */; };
 		4318D411242F7A1D0007AD62 /* LocationTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D410242F7A1D0007AD62 /* LocationTrackerUITests.swift */; };
+		4318D420242F7B1A0007AD62 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4318D41F242F7B1A0007AD62 /* CoreLocation.framework */; };
+		4318D422242F7C9D0007AD62 /* StoredProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D421242F7C9D0007AD62 /* StoredProperty.swift */; };
+		4318D424242F8D0A0007AD62 /* BackgroundLocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +52,9 @@
 		4318D40C242F7A1D0007AD62 /* LocationTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocationTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4318D410242F7A1D0007AD62 /* LocationTrackerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTrackerUITests.swift; sourceTree = "<group>"; };
 		4318D412242F7A1D0007AD62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4318D41F242F7B1A0007AD62 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		4318D421242F7C9D0007AD62 /* StoredProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredProperty.swift; sourceTree = "<group>"; };
+		4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundLocationTracker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4318D420242F7B1A0007AD62 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +90,7 @@
 				4318D404242F7A1D0007AD62 /* LocationTrackerTests */,
 				4318D40F242F7A1D0007AD62 /* LocationTrackerUITests */,
 				4318D3EC242F7A1B0007AD62 /* Products */,
+				4318D41E242F7B1A0007AD62 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,6 +107,7 @@
 		4318D3ED242F7A1B0007AD62 /* LocationTracker */ = {
 			isa = PBXGroup;
 			children = (
+				4318D421242F7C9D0007AD62 /* StoredProperty.swift */,
 				4318D3EE242F7A1B0007AD62 /* AppDelegate.swift */,
 				4318D3F0242F7A1B0007AD62 /* SceneDelegate.swift */,
 				4318D3F2242F7A1B0007AD62 /* ViewController.swift */,
@@ -106,6 +115,7 @@
 				4318D3F7242F7A1D0007AD62 /* Assets.xcassets */,
 				4318D3F9242F7A1D0007AD62 /* LaunchScreen.storyboard */,
 				4318D3FC242F7A1D0007AD62 /* Info.plist */,
+				4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */,
 			);
 			path = LocationTracker;
 			sourceTree = "<group>";
@@ -126,6 +136,14 @@
 				4318D412242F7A1D0007AD62 /* Info.plist */,
 			);
 			path = LocationTrackerUITests;
+			sourceTree = "<group>";
+		};
+		4318D41E242F7B1A0007AD62 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4318D41F242F7B1A0007AD62 /* CoreLocation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,6 +278,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4318D3F3242F7A1B0007AD62 /* ViewController.swift in Sources */,
+				4318D424242F8D0A0007AD62 /* BackgroundLocationTracker.swift in Sources */,
+				4318D422242F7C9D0007AD62 /* StoredProperty.swift in Sources */,
 				4318D3EF242F7A1B0007AD62 /* AppDelegate.swift in Sources */,
 				4318D3F1242F7A1B0007AD62 /* SceneDelegate.swift in Sources */,
 			);

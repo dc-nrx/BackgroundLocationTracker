@@ -14,7 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-		// Override point for customization after application launch.
+		
+		if let launchOptions = launchOptions,
+			launchOptions.keys.contains(.location) {
+			BackgroundLocationTracker.shared.appLaunchedBecauseOfLocationEvent()
+		}
+		else {
+			BackgroundLocationTracker.shared.start()
+		}
+		
 		return true
 	}
 
