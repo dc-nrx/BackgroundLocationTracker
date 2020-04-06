@@ -26,9 +26,9 @@ class Logger {
 		log("appLaunchedBecauseOfLocationEvent")
 	}
 	
-	static func didUpdateLocationTime(_ locationTime: LocationTime) {
-		log("new location time registered: \(locationTime.location.shortDescription), \(locationTime.date)")
-	}
+//	static func didUpdateLocationTime(_ locationTime: LocationTime) {
+//		log("new location time registered: \(locationTime.location.shortDescription), \(locationTime.date)")
+//	}
 	
 	static func didUpdateLocations(_ locations: [CLLocation]) {
 		let locationStrings = locations.map { $0.shortDescription }
@@ -47,7 +47,7 @@ class Logger {
 		entries.value = nil
 	}
 	
-	private static func log(_ entry: String) {
+	static func log(_ entry: String) {
 		let appState: String
 		if UIApplication.shared.applicationState == .background {
 			appState = "BG"
@@ -61,6 +61,9 @@ class Logger {
 		var currentEntries = entries.value ?? [String]()
 		currentEntries.append("[\(appState)] \(Date())# \(entry)")
 		entries.value = currentEntries
-		NotificationCenter.default.post(name: .loggerEntryAddedNotification, object: nil)
+		
+		DispatchQueue.main.async {			
+			NotificationCenter.default.post(name: .loggerEntryAddedNotification, object: nil)
+		}
 	}
 }
