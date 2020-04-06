@@ -35,13 +35,13 @@ class Logger {
 		log("didUpdateLocations triggered with data: \(locationStrings)")
 	}
 	
-	static func bgTask(location: CLLocation?) {
-		log("[bg task] ~~~~ location: \(location?.shortDescription)")
-	}
-	
-	static func timer(location: CLLocation?) {
-		log("[timer] ~~~~ location: \(location?.shortDescription)")
-	}
+//	static func bgTask(location: CLLocation?) {
+//		log("[bg task] ~~~~ location: \(location?.shortDescription)")
+//	}
+//	
+//	static func timer(location: CLLocation?) {
+//		log("[timer] ~~~~ location: \(location?.shortDescription)")
+//	}
 	
 	static func clearAll() {
 		entries.value = nil

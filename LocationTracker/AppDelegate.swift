@@ -22,13 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		Logger.appLaunch(options: launchOptions)
 		
-		if let launchOptions = launchOptions,
-			launchOptions.keys.contains(.location) {
-			LocationTracker.shared.appLaunchedBecauseOfLocationEvent()
-		}
-		else {
-			LocationTracker.shared.start()
-		}
+		let urlString = "http://dummy.restapiexample.com/api/v1/employees"
+		LocationTracker.shared.start(actionMinInterval: 60, url: URL(string: urlString)!, httpHeader: ["foo": "bar"])
 		
 		return true
 	}
