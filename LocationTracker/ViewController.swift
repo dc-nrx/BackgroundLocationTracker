@@ -19,11 +19,13 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 			
 		onRefresh()
+		NotificationCenter.default.addObserver(forName: .loggerEntryAddedNotification, object: nil, queue: nil) { [weak self] (_) in
+			self?.onRefresh()
+		}
 	}
 
 	@IBAction func onRefresh(_ sender: Any? = nil) {
-		let tracker = BackgroundLocationTracker.shared
-		textView.text = "FromBG: \(tracker.launchFromBG.value as Any)\n\n savedTimeStampedLocations:\n--------------\n\(tracker.savedTimeStampedLocations.value as Any)\n\nsavedLocationCallbacks:\n--------------\n\(tracker.savedLocationCallbacks.value as Any)"
+		textView.text = Logger.entries.value?.joined(separator: "\n----\n")
 	}
 }
 

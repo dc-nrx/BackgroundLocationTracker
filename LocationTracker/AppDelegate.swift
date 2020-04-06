@@ -11,16 +11,23 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+				
+		if application.applicationState == .background {
+			print("bg")
+		}
+		else {
+			print(application.applicationState)
+		}
+		
+		Logger.appLaunch(options: launchOptions)
 		
 		if let launchOptions = launchOptions,
 			launchOptions.keys.contains(.location) {
-			BackgroundLocationTracker.shared.appLaunchedBecauseOfLocationEvent()
+			LocationTracker.shared.appLaunchedBecauseOfLocationEvent()
 		}
 		else {
-			BackgroundLocationTracker.shared.start()
+			LocationTracker.shared.start()
 		}
 		
 		return true

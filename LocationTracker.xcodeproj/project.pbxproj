@@ -17,7 +17,11 @@
 		4318D411242F7A1D0007AD62 /* LocationTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D410242F7A1D0007AD62 /* LocationTrackerUITests.swift */; };
 		4318D420242F7B1A0007AD62 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4318D41F242F7B1A0007AD62 /* CoreLocation.framework */; };
 		4318D422242F7C9D0007AD62 /* StoredProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D421242F7C9D0007AD62 /* StoredProperty.swift */; };
-		4318D424242F8D0A0007AD62 /* BackgroundLocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */; };
+		4318D424242F8D0A0007AD62 /* LocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4318D423242F8D0A0007AD62 /* LocationTracker.swift */; };
+		432B4A992430AC6F00176197 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432B4A982430AC6F00176197 /* Logger.swift */; };
+		432B4A9B2430AF2B00176197 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432B4A9A2430AF2B00176197 /* Helpers.swift */; };
+		43A6CB2C243A35AE0076C9F1 /* Experiment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A6CB2B243A35AE0076C9F1 /* Experiment.swift */; };
+		43C48CF82435202100EFF00D /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43C48CF72435202100EFF00D /* BackgroundTasks.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,7 +58,11 @@
 		4318D412242F7A1D0007AD62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4318D41F242F7B1A0007AD62 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		4318D421242F7C9D0007AD62 /* StoredProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredProperty.swift; sourceTree = "<group>"; };
-		4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundLocationTracker.swift; sourceTree = "<group>"; };
+		4318D423242F8D0A0007AD62 /* LocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTracker.swift; sourceTree = "<group>"; };
+		432B4A982430AC6F00176197 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		432B4A9A2430AF2B00176197 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		43A6CB2B243A35AE0076C9F1 /* Experiment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Experiment.swift; sourceTree = "<group>"; };
+		43C48CF72435202100EFF00D /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = System/Library/Frameworks/BackgroundTasks.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4318D420242F7B1A0007AD62 /* CoreLocation.framework in Frameworks */,
+				43C48CF82435202100EFF00D /* BackgroundTasks.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,7 +124,10 @@
 				4318D3F7242F7A1D0007AD62 /* Assets.xcassets */,
 				4318D3F9242F7A1D0007AD62 /* LaunchScreen.storyboard */,
 				4318D3FC242F7A1D0007AD62 /* Info.plist */,
-				4318D423242F8D0A0007AD62 /* BackgroundLocationTracker.swift */,
+				4318D423242F8D0A0007AD62 /* LocationTracker.swift */,
+				432B4A982430AC6F00176197 /* Logger.swift */,
+				432B4A9A2430AF2B00176197 /* Helpers.swift */,
+				43A6CB2B243A35AE0076C9F1 /* Experiment.swift */,
 			);
 			path = LocationTracker;
 			sourceTree = "<group>";
@@ -141,6 +153,7 @@
 		4318D41E242F7B1A0007AD62 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				43C48CF72435202100EFF00D /* BackgroundTasks.framework */,
 				4318D41F242F7B1A0007AD62 /* CoreLocation.framework */,
 			);
 			name = Frameworks;
@@ -278,7 +291,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4318D3F3242F7A1B0007AD62 /* ViewController.swift in Sources */,
-				4318D424242F8D0A0007AD62 /* BackgroundLocationTracker.swift in Sources */,
+				432B4A9B2430AF2B00176197 /* Helpers.swift in Sources */,
+				432B4A992430AC6F00176197 /* Logger.swift in Sources */,
+				4318D424242F8D0A0007AD62 /* LocationTracker.swift in Sources */,
+				43A6CB2C243A35AE0076C9F1 /* Experiment.swift in Sources */,
 				4318D422242F7C9D0007AD62 /* StoredProperty.swift in Sources */,
 				4318D3EF242F7A1B0007AD62 /* AppDelegate.swift in Sources */,
 				4318D3F1242F7A1B0007AD62 /* SceneDelegate.swift in Sources */,
