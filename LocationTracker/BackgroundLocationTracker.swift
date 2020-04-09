@@ -24,7 +24,7 @@ The request body structure is determined by `makeLocationDateDict` method.
 	*/
 	var storedActionMinimumInterval = StoredProperty<TimeInterval>(key: "BackgroundLocationTracker.storedActionMinimumInterval")
 	
-	/** 
+	/**
 	A URL to send the update location request to.
 	*/
 	var storedURLString = StoredProperty<String>(key: "BackgroundLocationTracker.storedURLString")
@@ -82,8 +82,14 @@ The request body structure is determined by `makeLocationDateDict` method.
 	}
 	
 	@objc func stop() {
+		
 		locationManager.stopMonitoringSignificantLocationChanges()
 		locationManager.allowsBackgroundLocationUpdates = false
+		
+		storedURLString.value = nil
+		storedHTTPHeaders.value = nil
+		storedActionMinimumInterval.value = nil
+		storedUnsentLocations.value = nil
 		
 		trackingEnabled.value = false
 	}
