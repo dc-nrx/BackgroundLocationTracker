@@ -1,28 +1,28 @@
 //
 //  BackgroundLocationTracker.swift
-//  LocationTracker
+//
 //
 //  Created by Dmytro Chapovskyi on 28.03.2020.
 //  Copyright © 2020 Dmytro Chapovskyi. All rights reserved.
 //
-
 import Foundation
 import CoreLocation
 
 /**
 The class is intended for tracking significant location changes (including situations when the app is killed) and sending an update request to the backend (see `actionMinInterval`, `url` and `httpHeader` for configuration details).
-To use it just call `LocationTracker.shared.start(...)` on `application: didFinishLaunchingWithOptions:` in AppDelegate.
+To use it just call `BackgroundLocationTracker.shared.start(...)` on `application: didFinishLaunchingWithOptions:` in AppDelegate.
+The request body structure is determined by `makeLocationDateDict` method.
 */
-@objc class LocationTracker: NSObject {
+@objc class BackgroundLocationTracker: NSObject {
 	
 	//MARK:- Public members
 	
-	@objc static let shared = LocationTracker()
+	@objc static let shared = BackgroundLocationTracker()
 	
 	/**
-	The minimum interval (in seconds) before execute the action (in the current implementation - send a request on location update event).
+	The minimum time interval (in seconds) before repeated location track (with further send to the backend).
 	*/
-	@objc var actionMinInterval: TimeInterval = 1 // 14 * 60
+	@objc var actionMinimumInterval: TimeInterval = 1 // 14 * 60
 	
 	/**
 	A URL to send the update location request to.
@@ -32,33 +32,65 @@ To use it just call `LocationTracker.shared.start(...)` on `application: didFini
 	/**
 	A header to construct a location update request.
 	*/
-	@objc var httpHeader: [String: String]!
+	@objc var httpHeaders: [String: String]!
 	
 	//MARK:- Private members
 	
-	private let locationManager = CLLocationManager()
-	private var storedLastActionDate = StoredProperty<Date>(key: "LocationTracker.storedLastActionDate")
 	/**
-	An array with "location-date" dictionary records (see `makeTimeLocationDict` for structure).
+	The standard location manager.
+	*/
+	private let locationManager = CLLocationManager()
+	
+	/**
+	Timestamp of the last location-date tracked.
+	*/
+	private var storedLastActionDate = StoredProperty<Date>(key: "LocationTracker.storedLastActionDate")
+	
+	/**
+	An array with "location-date" dictionary records (see `makeTimeLocationDict` for the records structure), which hasn't been sent to the server for some reasons.
 	*/
 	private var storedUnsentLocations = StoredProperty<[[String: String]]>(key: "LocationTracker.storedUnsentLocations")
 	
+	private var trackingEnabled = StoredProperty<Bool>(key: "LocationTracker.trackingEnabled")
+	
 	/**
-	Call the function on `application: didFinishLaunchingWithOptions:`.
+	Call the function whenever nesseccary; then to support background tracking you must call `continueIfAppropriate()` - see the doc.
 	*/
-	@objc func start(actionMinInterval: TimeInterval, url: NSURL, httpHeader: [String: String]) {
+	@objc func start(actionMinimumInterval: TimeInterval, url: NSURL, httpHeaders: [String: String]) {
 		
-		self.actionMinInterval = actionMinInterval
+		self.actionMinimumInterval = actionMinimumInterval
 		self.url = url
-		self.httpHeader = httpHeader
+		self.httpHeaders = httpHeaders
 		
+		trackingEnabled.value = true
 		setupLocationManager()
 	}
+	
+	/**
+	Call this method in `application: didFinishLaunchingWithOptions:` to enable background location updates
+	If `start(...)` hasn't been called before, nothing will happen.
+	*/
+	@objc func continueIfAppropriate() {
 		
+		if let isEnabled = trackingEnabled.value,
+			isEnabled,
+			self.url != nil,
+			self.httpHeaders != nil {
+			
+			setupLocationManager()
+		}
+	}
+	
+	@objc func stop() {
+		locationManager.stopMonitoringSignificantLocationChanges()
+		locationManager.allowsBackgroundLocationUpdates = false
+		
+		trackingEnabled.value = false
+	}
 }
 
 //MARK:- Private
-private extension LocationTracker {
+private extension BackgroundLocationTracker {
 
 	func setupLocationManager() {
 		locationManager.requestAlwaysAuthorization()
@@ -74,9 +106,8 @@ private extension LocationTracker {
 	The main function to trigger on location update
 	*/
 	func main(locations: [CLLocation]) {
-		Logger.log("### main")
 		if let lastActionDate = storedLastActionDate.value,
-			Date().timeIntervalSince(lastActionDate) < actionMinInterval {
+			Date().timeIntervalSince(lastActionDate) < actionMinimumInterval {
 			// The last action has been performed less than `actionMinInterval` seconds ago.
 			return
 		}
@@ -89,9 +120,12 @@ private extension LocationTracker {
 		sendSavedLocations()
 	}
 	
+	/**
+	Store the newly tracked location-date.
+	*/
 	func appendToSavedLocations(_ location: CLLocation) {
 		var unsentLocations = storedUnsentLocations.value ?? [[String: String]]()
-		unsentLocations.append(makeTimeLocationDict(location: location))
+		unsentLocations.append(makeLocationDateDict(location: location))
 		storedUnsentLocations.value = unsentLocations
 	}
 	
@@ -108,16 +142,24 @@ private extension LocationTracker {
 		// Setup request
 		var request = URLRequest(url: url as URL)
 		request.httpMethod = "POST"
-		request.allHTTPHeaderFields = httpHeader
-		// Make the request body
+		// Headers
+		var headersExtended = httpHeaders
+		headersExtended?["Content-Type"] = "application/json"
+		request.allHTTPHeaderFields = headersExtended
+		// Body
 		do {
 			request.httpBody = try JSONSerialization.data(withJSONObject: locations, options: JSONSerialization.WritingOptions.prettyPrinted)
-		} catch { // let myJSONError {
+			if (request.httpBody?.count ?? 0) > 1_000_000_000 {
+				// > ~1GB of unsent data - impossible in the case of normal flow
+				emergencyUnsentLocationsCleanup()
+				// TODO: report serialization error
+			}
+		} catch {
+			emergencyUnsentLocationsCleanup()
 			// TODO: report serialization error
 		}
 		// Send the request
 		let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
-			Logger.log("request finished with error \(String(describing: error)); response code: \(String(describing: response))")
 			guard error == nil,
 				let httpResponse = response as? HTTPURLResponse,
 				200...299 ~= httpResponse.statusCode else {
@@ -130,31 +172,32 @@ private extension LocationTracker {
 		task.resume()
 	}
 	
-	func makeTimeLocationDict(location: CLLocation) -> [String: String] {
+	/**
+	Constrct a location-date dictionary to save -> send to the backend.
+	*/
+	func makeLocationDateDict(location: CLLocation) -> [String: String] {
 		let result = [
 			"lat": String(location.coordinate.latitude),
 			"long": String(location.coordinate.longitude),
 			"timestamp": Date().description
-		]		
-		return result
+		]
 		
+		return result
+	}
+	
+	/**
+	Not supposed to be ever executed - just in case of unexpected cached data corruption or overflow.
+	*/
+	func emergencyUnsentLocationsCleanup() {
+		self.storedUnsentLocations.value = nil
 	}
 }
 
 //MARK:-
-extension LocationTracker: CLLocationManagerDelegate {
+extension BackgroundLocationTracker: CLLocationManagerDelegate {
 	
 	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-
 		main(locations: locations)
-		
-//		if let lastLocation = locations.last {
-//			let locationTime = (lastLocation, Date())
-//			Logger.didUpdateLocationTime(locationTime)
-//		}
-//
-		Logger.didUpdateLocations(locations)
-		
 	}
 	
 }

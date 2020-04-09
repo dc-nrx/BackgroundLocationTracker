@@ -1,9 +1,9 @@
 //
 //  StoredProperty.swift
-//  hastee
+//
 //
 //  Created by Dmytro Chapovskyi on 07.12.2019.
-//  Copyright © 2019 OlDor. All rights reserved.
+//  Copyright © 2019 Dmytro Chapovskyi. All rights reserved.
 //
 
 import Foundation

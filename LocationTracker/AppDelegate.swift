@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		Logger.appLaunch(options: launchOptions)
 		
 		let urlString = "https://www.mocky.io/v2/5185415ba171ea3a00704eed"
-		LocationTracker.shared.start(actionMinInterval: 15 * 60, url: NSURL(string: urlString)!, httpHeader: ["foo": "bar"])
+		BackgroundLocationTracker.shared.start(actionMinimumInterval: 15 * 60, url: NSURL(string: urlString)!, httpHeaders: ["foo": "bar"])
 		
 		return true
 	}
