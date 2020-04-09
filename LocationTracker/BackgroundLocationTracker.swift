@@ -22,17 +22,17 @@ The request body structure is determined by `makeLocationDateDict` method.
 	/**
 	The minimum time interval (in seconds) before repeated location track (with further send to the backend).
 	*/
-	@objc var actionMinimumInterval: TimeInterval = 1 // 14 * 60
+	var storedActionMinimumInterval = StoredProperty<TimeInterval>(key: "BackgroundLocationTracker.storedActionMinimumInterval")
 	
 	/**
 	A URL to send the update location request to.
 	*/
-	@objc var url: NSURL!
+	var storedURLString = StoredProperty<String>(key: "BackgroundLocationTracker.storedURLString")
 	
 	/**
 	A header to construct a location update request.
 	*/
-	@objc var httpHeaders: [String: String]!
+	var storedHTTPHeaders = StoredProperty<[String: String]>(key: "BackgroundLocationTracker.storedHTTPHeaders")
 	
 	//MARK:- Private members
 	
@@ -44,23 +44,23 @@ The request body structure is determined by `makeLocationDateDict` method.
 	/**
 	Timestamp of the last location-date tracked.
 	*/
-	private var storedLastActionDate = StoredProperty<Date>(key: "LocationTracker.storedLastActionDate")
+	private var storedLastActionDate = StoredProperty<Date>(key: "BackgroundLocationTracker.storedLastActionDate")
 	
 	/**
 	An array with "location-date" dictionary records (see `makeTimeLocationDict` for the records structure), which hasn't been sent to the server for some reasons.
 	*/
-	private var storedUnsentLocations = StoredProperty<[[String: String]]>(key: "LocationTracker.storedUnsentLocations")
+	private var storedUnsentLocations = StoredProperty<[[String: String]]>(key: "BackgroundLocationTracker.storedUnsentLocations")
 	
-	private var trackingEnabled = StoredProperty<Bool>(key: "LocationTracker.trackingEnabled")
+	private var trackingEnabled = StoredProperty<Bool>(key: "BackgroundLocationTracker.trackingEnabled")
 	
 	/**
 	Call the function whenever nesseccary; then to support background tracking you must call `continueIfAppropriate()` - see the doc.
 	*/
 	@objc func start(actionMinimumInterval: TimeInterval, url: NSURL, httpHeaders: [String: String]) {
 		
-		self.actionMinimumInterval = actionMinimumInterval
-		self.url = url
-		self.httpHeaders = httpHeaders
+		self.storedActionMinimumInterval.value = actionMinimumInterval
+		self.storedURLString.value = url.absoluteString
+		self.storedHTTPHeaders.value = httpHeaders
 		
 		trackingEnabled.value = true
 		setupLocationManager()
@@ -74,8 +74,8 @@ The request body structure is determined by `makeLocationDateDict` method.
 		
 		if let isEnabled = trackingEnabled.value,
 			isEnabled,
-			self.url != nil,
-			self.httpHeaders != nil {
+			self.storedURLString.value != nil,
+			self.storedHTTPHeaders.value != nil {
 			
 			setupLocationManager()
 		}
@@ -107,7 +107,7 @@ private extension BackgroundLocationTracker {
 	*/
 	func main(locations: [CLLocation]) {
 		if let lastActionDate = storedLastActionDate.value,
-			Date().timeIntervalSince(lastActionDate) < actionMinimumInterval {
+		Date().timeIntervalSince(lastActionDate) < storedActionMinimumInterval.value ?? 0 {
 			// The last action has been performed less than `actionMinInterval` seconds ago.
 			return
 		}
@@ -133,7 +133,9 @@ private extension BackgroundLocationTracker {
 	Send all the saved locations to the specified `url` (see `makeTimeLocationDict` for the single "location" item structure).
 	*/
 	func sendSavedLocations() {
-		guard let url = url else {
+		guard let urlString = storedURLString.value,
+			let url = URL(string: urlString),
+			var httpHeaders = storedHTTPHeaders.value else {
 			// TODO: Report "no url" error
 			return
 		}
@@ -143,9 +145,8 @@ private extension BackgroundLocationTracker {
 		var request = URLRequest(url: url as URL)
 		request.httpMethod = "POST"
 		// Headers
-		var headersExtended = httpHeaders
-		headersExtended?["Content-Type"] = "application/json"
-		request.allHTTPHeaderFields = headersExtended
+		httpHeaders["Content-Type"] = "application/json"
+		request.allHTTPHeaderFields = httpHeaders
 		// Body
 		do {
 			request.httpBody = try JSONSerialization.data(withJSONObject: locations, options: JSONSerialization.WritingOptions.prettyPrinted)
