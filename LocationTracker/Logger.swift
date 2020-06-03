@@ -42,9 +42,9 @@ extension Notification.Name {
 		
 		text.append(makeRecordString(from: entry))
     
-		DispatchQueue.main.async {
-			Logger.saveToDisc()
-		}
+//		DispatchQueue.main.async {
+		Logger.saveToDisc()
+//		}
 	}
   
   @objc static func logAppLaunch() {
