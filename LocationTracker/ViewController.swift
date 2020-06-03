@@ -15,17 +15,5 @@ class ViewController: UIViewController {
 
 	@IBOutlet private var textView: UITextView!
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
-			
-		onRefresh()
-		NotificationCenter.default.addObserver(forName: .loggerEntryAddedNotification, object: nil, queue: nil) { [weak self] (_) in
-			self?.onRefresh()
-		}
-	}
-
-	@IBAction func onRefresh(_ sender: Any? = nil) {
-		textView.text = Logger.entries.value?.joined(separator: "\n----\n")
-	}
 }
 

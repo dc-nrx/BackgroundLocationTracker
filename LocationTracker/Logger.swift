@@ -14,56 +14,68 @@ extension Notification.Name {
 	static let loggerEntryAddedNotification = Notification.Name("Logger.entryAdded")
 }
 
-class Logger {
+@objc class Logger: NSObject {
 	
-	static let entries = StoredProperty<[String]>(key: "Logger.text")
-
-	static func appLaunch(options: [UIApplication.LaunchOptionsKey: Any]?) {
-		log("▣▣▣▣ App launched with options: \(String(describing: options))")
-	}
-	
-	static func appLaunchedBecauseOfLocationEvent() {
-		log("appLaunchedBecauseOfLocationEvent")
-	}
-	
-//	static func didUpdateLocationTime(_ locationTime: LocationTime) {
-//		log("new location time registered: \(locationTime.location.shortDescription), \(locationTime.date)")
-//	}
-	
-	static func didUpdateLocations(_ locations: [CLLocation]) {
-		let locationStrings = locations.map { $0.shortDescription }
-		log("didUpdateLocations triggered with data: \(locationStrings)")
-	}
-	
-//	static func bgTask(location: CLLocation?) {
-//		log("[bg task] ~~~~ location: \(location?.shortDescription)")
-//	}
-//	
-//	static func timer(location: CLLocation?) {
-//		log("[timer] ~~~~ location: \(location?.shortDescription)")
-//	}
-	
-	static func clearAll() {
-		entries.value = nil
-	}
-	
-	static func log(_ entry: String) {
-		let appState: String
-		if UIApplication.shared.applicationState == .background {
-			appState = "BG"
+	static let logFileName = "LocationTrackerLog.txt"
+    
+	static let terminationRecord = StoredProperty<String>(key: "Logger.terminationRecord")
+  
+	static var text: String = {
+				
+		let fileURL = getDocumentsDirectory().appendingPathComponent(Logger.logFileName)
+		do {
+			let result = try String(contentsOf: fileURL, encoding: .utf8)
+			return result
 		}
-		else if UIApplication.shared.applicationState == .active {
-			appState = "A"
+		catch {
+			// No file yet
+			return ""
 		}
-		else {
-			appState = "??"
-		}
-		var currentEntries = entries.value ?? [String]()
-		currentEntries.append("[\(appState)] \(Date())# \(entry)")
-		entries.value = currentEntries
+	}()
 		
-		DispatchQueue.main.async {			
-			NotificationCenter.default.post(name: .loggerEntryAddedNotification, object: nil)
+	static func clearAll() {
+		text = ""
+		saveToDisc()
+	}
+	
+	@objc static func log(_ entry: String) {
+		
+		text.append(makeRecordString(from: entry))
+    
+		DispatchQueue.main.async {
+			Logger.saveToDisc()
 		}
 	}
+  
+  @objc static func logAppLaunch() {
+    if let terminationRecordValue = terminationRecord.value {
+      text.append(terminationRecordValue)
+      terminationRecord.value = nil
+    }
+    log("### APP LAUNCHED ###")
+  }
+  
+  @objc static func logAppTermination() {
+    terminationRecord.value = makeRecordString(from: "### APP TERMINATED ###")
+  }
+  
+	private static func saveToDisc() {
+		let filePath = getDocumentsDirectory().appendingPathComponent(logFileName)
+
+		do {
+			try text.write(to: filePath, atomically: true, encoding: String.Encoding.utf8)
+		} catch {
+			print("\(error)")
+		}
+	}
+
+  private static func makeRecordString(from entry: String) -> String {
+    return String(format: "\n[%@]# %@", Date().description, entry)
+  }
+  
+  private static func getDocumentsDirectory() -> URL {
+      let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+      return paths[0]
+  }
+    
 }

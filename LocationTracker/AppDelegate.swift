@@ -7,26 +7,45 @@
 //
 
 import UIKit
+import BackgroundTasks
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+	let enableBackgroundFetch = true
+	
+	let minimumBackgroundFetchInterval: TimeInterval = 15 * 60
+	
+	let bgTaskId = "dc.LocationTracker.sendLocation"
+	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-				
-		if application.applicationState == .background {
-			print("bg")
-		}
-		else {
-			print(application.applicationState)
-		}
-		
-		Logger.appLaunch(options: launchOptions)
-		
+			
 		let urlString = "https://www.mocky.io/v2/5185415ba171ea3a00704eed"
+		let headers = ["foo": "bar"]
 		
-		BackgroundLocationTracker.shared.start(url: NSURL(string: urlString)!, httpHeaders: ["foo": "bar"])
+		// Start tracking
+		BackgroundLocationTracker.shared.start(url: NSURL(string: urlString)!, httpHeaders: headers)
+		
+		// Support relaunch on significant location change
 		BackgroundLocationTracker.shared.continueIfAppropriate()
 		
+		if enableBackgroundFetch {
+			if #available(iOS 13, *) {
+				let request = BGAppRefreshTaskRequest(identifier: bgTaskId)
+				// Fetch no earlier than 15 minutes from now
+				request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
+						 
+				do {
+					 try BGTaskScheduler.shared.submit(request)
+				} catch {
+					 print("Could not schedule app refresh: \(error)")
+				}
+			}
+			else {
+				UIApplication.shared.setMinimumBackgroundFetchInterval(minimumBackgroundFetchInterval)
+			}
+		}
+				
 		return true
 	}
 
